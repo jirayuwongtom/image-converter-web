@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Converter Pro</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <main class="container">
+        <h2>แปลงไฟล์รูปภาพ</h2>
+        
+        <div class="form-group">
+            <label for="uploadImg">เลือกไฟล์รูปภาพ:</label>
+            <input type="file" id="uploadImg" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label for="formatSelect">เลือกนามสกุลเป้าหมาย:</label>
+            <select id="formatSelect">
+                <option value="image/jpeg">JPG / JPEG</option>
+                <option value="image/png">PNG</option>
+                <option value="image/webp">WEBP</option>
+            </select>
+        </div>
+
+        <button id="convertBtn">แปลงไฟล์และดาวน์โหลด</button>
+        <p id="statusText" class="status-message"></p>
+    </main>
+
+    <!-- เรียกใช้ Module JavaScript -->
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>
