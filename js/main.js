@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     convertBtn.addEventListener('click', async () => {
         // ตรวจสอบว่าผู้ใช้ใส่ไฟล์มาหรือยัง
         if (fileInput.files.length === 0) {
-            alert('กรุณาเลือกไฟล์รูปภาพก่อนครับ');
+            alert('กรุณาเลือกไฟล์รูปภาพก่อน');
             return;
         }
 
