@@ -9,24 +9,21 @@
 <body>
     <main class="container">
         <h2>แปลงไฟล์รูปภาพ</h2>
-        
-        <!-- พื้นที่อัปโหลดแบบ Drag & Drop -->
         <div class="form-group">
             <div class="upload-area" id="uploadArea">
-                <!-- ซ่อน input เดิมไว้ -->
-                <input type="file" id="uploadImg" accept="image/*" hidden>
-                
+                <input type="file" id="uploadImg" accept="image/*" hidden>  
                 <div id="uploadContent">
                     <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                     <p>คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</p>
                 </div>
-                <!-- พื้นที่แสดงภาพตัวอย่าง -->
-                <img id="imagePreview" src="" alt="Preview">
+                <div id="previewContainer" style="display: none;">
+                    <img id="imagePreview" src="" alt="Preview">
+                    <p id="fileNameDisplay" class="file-name"></p>
+                </div>
             </div>
         </div>
-
         <div class="form-group">
             <label for="formatSelect">เลือกนามสกุลเป้าหมาย:</label>
             <select id="formatSelect">
@@ -35,12 +32,9 @@
                 <option value="image/webp">WEBP</option>
             </select>
         </div>
-
         <button id="convertBtn">แปลงไฟล์และดาวน์โหลด</button>
-        <!-- เปลี่ยนที่แสดงผลสถานะให้อยู่ในกรอบสวยๆ -->
         <div id="statusAlert" class="status-alert" style="display: none;"></div>
     </main>
-
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

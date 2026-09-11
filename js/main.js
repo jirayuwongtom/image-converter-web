@@ -4,50 +4,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('uploadImg');
     const uploadContent = document.getElementById('uploadContent');
+    const previewContainer = document.getElementById('previewContainer');
     const imagePreview = document.getElementById('imagePreview');
+    const fileNameDisplay = document.getElementById('fileNameDisplay'); 
     const formatSelect = document.getElementById('formatSelect');
     const convertBtn = document.getElementById('convertBtn');
     const statusAlert = document.getElementById('statusAlert');
 
     let selectedFile = null;
 
-    // 1. ฟังก์ชันจัดการ Alert แจ้งเตือน (แทนที่ alert เดิม)
     const showAlert = (message, type) => {
         statusAlert.textContent = message;
-        statusAlert.className = `status-alert ${type}`; // สลับคลาสตามประเภท (error, success, info)
+        statusAlert.className = `status-alert ${type}`; 
         statusAlert.style.display = 'block';
     };
 
-    // 2. ฟังก์ชันแสดงภาพตัวอย่างเมื่อเลือกไฟล์
     const handleFile = (file) => {
         if (!file || !file.type.startsWith('image/')) {
-            showAlert('กรุณาเลือกไฟล์ประเภทรูปภาพเท่านั้นครับ', 'error');
+            showAlert('กรุณาเลือกไฟล์ประเภทรูปภาพเท่านั้น', 'error');
             return;
         }
         
         selectedFile = file;
         showAlert('เลือกไฟล์เรียบร้อยแล้ว พร้อมแปลงไฟล์!', 'info');
+        fileNameDisplay.textContent = `${file.name}`;
 
-        // อ่านไฟล์เพื่อแสดงภาพตัวอย่าง
         const reader = new FileReader();
         reader.onload = (e) => {
             imagePreview.src = e.target.result;
-            imagePreview.style.display = 'block';
-            uploadContent.style.display = 'none'; // ซ่อนไอคอนกล่องอัปโหลด
+            previewContainer.style.display = 'flex'; 
+            uploadContent.style.display = 'none'; 
         };
         reader.readAsDataURL(file);
     };
 
-    // 3. จัดการ Event การคลิกที่กล่องเพื่อเลือกไฟล์
     uploadArea.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-
-    // 4. จัดการ Event Drag & Drop (ลากไฟล์มาวาง)
     uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
         uploadArea.classList.add('dragover');
     });
-    
+
     uploadArea.addEventListener('dragleave', () => {
         uploadArea.classList.remove('dragover');
     });
@@ -58,39 +55,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (e.dataTransfer.files.length > 0) {
             handleFile(e.dataTransfer.files[0]);
-            fileInput.files = e.dataTransfer.files; // โยนไฟล์เข้าไปใน input ด้วย
+            fileInput.files = e.dataTransfer.files; 
         }
     });
 
-    // 5. ปุ่มกดแปลงไฟล์
     convertBtn.addEventListener('click', async () => {
         if (!selectedFile) {
-            showAlert('กรุณาอัปโหลดรูปภาพก่อนทำการแปลงไฟล์ครับ', 'error');
-            return; // หยุดการทำงาน ไม่ใช้ alert() แล้ว
+            showAlert('กรุณาอัปโหลดรูปภาพ', 'error');
+            return; 
         }
 
         const format = formatSelect.value;
+        if (selectedFile.type === format) {
+            const ext = format.split('/')[1].toUpperCase();
+            showAlert(`ไฟล์ต้นฉบับเป็นนามสกุล ${ext} อยู่แล้ว`, 'info');
+            return;
+        }
+
         const originalBtnText = convertBtn.innerHTML;
 
-        // ล็อกปุ่มและเปลี่ยนข้อความปุ่มให้ดูเหมือนกำลังโหลด
         convertBtn.disabled = true;
-        convertBtn.innerHTML = '⏳ กำลังประมวลผล...';
-        statusAlert.style.display = 'none'; // ซ่อนแจ้งเตือนเก่า
+        convertBtn.innerHTML = 'กำลังประมวลผล...';
+        statusAlert.style.display = 'none'; 
 
         try {
             const imageSrc = await readImageFile(selectedFile);
             const convertedDataUrl = await processImage(imageSrc, format);
-
             const fileExtension = format.split('/')[1];
-            const newFilename = `converted_${Date.now()}.${fileExtension}`;
-            triggerDownload(convertedDataUrl, newFilename);
+            const baseName = selectedFile.name.substring(0, selectedFile.name.lastIndexOf('.')) || 'converted';
+            const newFilename = `${baseName}.${fileExtension}`;
             
-            showAlert('แปลงไฟล์และดาวน์โหลดสำเร็จ! 🎉', 'success');
+            triggerDownload(convertedDataUrl, newFilename);
+            showAlert('แปลงไฟล์และดาวน์โหลดสำเร็จ! ', 'success');
         } catch (error) {
             console.error(error);
             showAlert("เกิดข้อผิดพลาด: " + error.message, 'error');
         } finally {
-            // คืนสถานะปุ่ม
             convertBtn.disabled = false;
             convertBtn.innerHTML = originalBtnText;
         }

@@ -69,3 +69,32 @@ button:disabled { background-color: #93c5fd; cursor: not-allowed; transform: non
 .status-alert.error { background-color: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
 .status-alert.success { background-color: #dcfce3; color: #16a34a; border: 1px solid #86efac; }
 .status-alert.info { background-color: #e0f2fe; color: #0284c7; border: 1px solid #7dd3fc; }
+/* ---------------- Preview & File Name ---------------- */
+#previewContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    z-index: 2;
+}
+
+#imagePreview {
+    display: block;
+    max-width: 100%;
+    max-height: 180px;
+    border-radius: 8px;
+    object-fit: contain;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.file-name {
+    font-size: 13px;
+    color: #475569;
+    background-color: #f1f5f9;
+    padding: 6px 14px;
+    border-radius: 12px;
+    word-break: break-all;
+    max-width: 90%;
+    margin-bottom: 0; /* เอา margin ด้านล่างออกเพราะไม่มีปุ่มแล้ว */
+}
