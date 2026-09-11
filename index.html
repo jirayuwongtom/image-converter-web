@@ -10,9 +10,21 @@
     <main class="container">
         <h2>แปลงไฟล์รูปภาพ</h2>
         
+        <!-- พื้นที่อัปโหลดแบบ Drag & Drop -->
         <div class="form-group">
-            <label for="uploadImg">เลือกไฟล์รูปภาพ:</label>
-            <input type="file" id="uploadImg" accept="image/*">
+            <div class="upload-area" id="uploadArea">
+                <!-- ซ่อน input เดิมไว้ -->
+                <input type="file" id="uploadImg" accept="image/*" hidden>
+                
+                <div id="uploadContent">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <p>คลิกเพื่อเลือกไฟล์ หรือลากไฟล์มาวางที่นี่</p>
+                </div>
+                <!-- พื้นที่แสดงภาพตัวอย่าง -->
+                <img id="imagePreview" src="" alt="Preview">
+            </div>
         </div>
 
         <div class="form-group">
@@ -25,10 +37,10 @@
         </div>
 
         <button id="convertBtn">แปลงไฟล์และดาวน์โหลด</button>
-        <p id="statusText" class="status-message"></p>
+        <!-- เปลี่ยนที่แสดงผลสถานะให้อยู่ในกรอบสวยๆ -->
+        <div id="statusAlert" class="status-alert" style="display: none;"></div>
     </main>
 
-    <!-- เรียกใช้ Module JavaScript -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

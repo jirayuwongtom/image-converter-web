@@ -1,54 +1,102 @@
 import { readImageFile, processImage } from './converter.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('uploadImg');
+    const uploadContent = document.getElementById('uploadContent');
+    const imagePreview = document.getElementById('imagePreview');
     const formatSelect = document.getElementById('formatSelect');
     const convertBtn = document.getElementById('convertBtn');
-    const statusText = document.getElementById('statusText');
+    const statusAlert = document.getElementById('statusAlert');
 
-    convertBtn.addEventListener('click', async () => {
-        // ตรวจสอบว่าผู้ใช้ใส่ไฟล์มาหรือยัง
-        if (fileInput.files.length === 0) {
-            alert('กรุณาเลือกไฟล์รูปภาพก่อน');
+    let selectedFile = null;
+
+    // 1. ฟังก์ชันจัดการ Alert แจ้งเตือน (แทนที่ alert เดิม)
+    const showAlert = (message, type) => {
+        statusAlert.textContent = message;
+        statusAlert.className = `status-alert ${type}`; // สลับคลาสตามประเภท (error, success, info)
+        statusAlert.style.display = 'block';
+    };
+
+    // 2. ฟังก์ชันแสดงภาพตัวอย่างเมื่อเลือกไฟล์
+    const handleFile = (file) => {
+        if (!file || !file.type.startsWith('image/')) {
+            showAlert('กรุณาเลือกไฟล์ประเภทรูปภาพเท่านั้นครับ', 'error');
             return;
         }
+        
+        selectedFile = file;
+        showAlert('เลือกไฟล์เรียบร้อยแล้ว พร้อมแปลงไฟล์!', 'info');
 
-        const file = fileInput.files[0];
+        // อ่านไฟล์เพื่อแสดงภาพตัวอย่าง
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            uploadContent.style.display = 'none'; // ซ่อนไอคอนกล่องอัปโหลด
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // 3. จัดการ Event การคลิกที่กล่องเพื่อเลือกไฟล์
+    uploadArea.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+    // 4. จัดการ Event Drag & Drop (ลากไฟล์มาวาง)
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        
+        if (e.dataTransfer.files.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+            fileInput.files = e.dataTransfer.files; // โยนไฟล์เข้าไปใน input ด้วย
+        }
+    });
+
+    // 5. ปุ่มกดแปลงไฟล์
+    convertBtn.addEventListener('click', async () => {
+        if (!selectedFile) {
+            showAlert('กรุณาอัปโหลดรูปภาพก่อนทำการแปลงไฟล์ครับ', 'error');
+            return; // หยุดการทำงาน ไม่ใช้ alert() แล้ว
+        }
+
         const format = formatSelect.value;
+        const originalBtnText = convertBtn.innerHTML;
 
-        // ล็อกปุ่มป้องกันผู้ใช้กดซ้ำ
+        // ล็อกปุ่มและเปลี่ยนข้อความปุ่มให้ดูเหมือนกำลังโหลด
         convertBtn.disabled = true;
-        statusText.style.color = '#333';
-        statusText.textContent = "กำลังประมวลผล...";
+        convertBtn.innerHTML = '⏳ กำลังประมวลผล...';
+        statusAlert.style.display = 'none'; // ซ่อนแจ้งเตือนเก่า
 
         try {
-            // 1. นำไฟล์เข้าฟังก์ชันอ่านรูป (รอจนกว่าจะอ่านเสร็จด้วย await)
-            const imageSrc = await readImageFile(file);
-            
-            // 2. ส่งข้อมูลไปแปลงไฟล์บน Canvas
+            const imageSrc = await readImageFile(selectedFile);
             const convertedDataUrl = await processImage(imageSrc, format);
 
-            // 3. ตั้งชื่อไฟล์ใหม่ และสั่งดาวน์โหลด
             const fileExtension = format.split('/')[1];
             const newFilename = `converted_${Date.now()}.${fileExtension}`;
             triggerDownload(convertedDataUrl, newFilename);
             
-            statusText.style.color = '#28a745';
-            statusText.textContent = "แปลงไฟล์และดาวน์โหลดสำเร็จ!";
+            showAlert('แปลงไฟล์และดาวน์โหลดสำเร็จ! 🎉', 'success');
         } catch (error) {
             console.error(error);
-            statusText.style.color = 'red';
-            statusText.textContent = "เกิดข้อผิดพลาด: " + error.message;
+            showAlert("เกิดข้อผิดพลาด: " + error.message, 'error');
         } finally {
-            // คืนสถานะปุ่มให้กลับมากดได้เหมือนเดิม
+            // คืนสถานะปุ่ม
             convertBtn.disabled = false;
+            convertBtn.innerHTML = originalBtnText;
         }
     });
 });
 
-/**
- * ฟังก์ชันสร้างลิงก์จำลองเพื่อดาวน์โหลดไฟล์
- */
 function triggerDownload(dataUrl, filename) {
     const link = document.createElement('a');
     link.href = dataUrl;
